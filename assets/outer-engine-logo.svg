@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="250" viewBox="0 0 1100 250" role="img" aria-labelledby="title desc">
+  <title id="title">OUTER!ENGINE</title>
+  <desc id="desc">OUTER!ENGINE cosmic wordmark in violet and white.</desc>
+  <defs>
+    <linearGradient id="word" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".45" stop-color="#d8c5ff"/>
+      <stop offset="1" stop-color="#8d5cff"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-40%" width="160%" height="180%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <g fill="none" stroke="#9c75ff" stroke-width="2" opacity=".8">
+    <ellipse cx="550" cy="125" rx="470" ry="78" transform="rotate(-8 550 125)"/>
+    <ellipse cx="550" cy="125" rx="430" ry="98" transform="rotate(8 550 125)" opacity=".55"/>
+  </g>
+  <g fill="#c8adff">
+    <circle cx="78" cy="87" r="4"/><circle cx="153" cy="191" r="3"/><circle cx="976" cy="72" r="4"/><circle cx="1020" cy="169" r="3"/><circle cx="246" cy="46" r="2"/><circle cx="857" cy="207" r="2"/>
+  </g>
+  <g fill="#bca0ff" filter="url(#glow)">
+    <path d="M75 123l7-17 7 17 17 7-17 7-7 17-7-17-17-7z"/>
+    <path d="M1000 113l5-12 5 12 12 5-12 5-5 12-5-12-12-5z"/>
+  </g>
+  <text x="550" y="143" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="104" font-weight="900" letter-spacing="2" fill="url(#word)" stroke="#6540b9" stroke-width="2" paint-order="stroke fill" filter="url(#glow)">OUTER!ENGINE</text>
+  <path d="M360 177 Q550 198 740 177" fill="none" stroke="#a886ff" stroke-width="3" stroke-linecap="round"/>
+</svg>
