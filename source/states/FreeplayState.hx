@@ -5,6 +5,7 @@ import backend.Highscore;
 import backend.Song;
 
 import objects.HealthIcon;
+import objects.Character;
 import objects.MusicPlayer;
 
 import options.GameplayChangersSubstate;
@@ -51,6 +52,14 @@ class FreeplayState extends MusicBeatState
 	var bottomBG:FlxSprite;
 
 	var player:MusicPlayer;
+
+	// V-Slice-inspired album presentation.
+	var gfBackdrop:Character;
+	var dadBackdrop:Character;
+	var albumCover:FlxSprite;
+	var albumFrame:FlxSprite;
+	var albumTitle:FlxText;
+	var albumHint:FlxText;
 
 	override function create()
 	{
@@ -108,6 +117,39 @@ class FreeplayState extends MusicBeatState
 		bg.color = 0xFF6A0DAD; // OUTER!ENGINE purple theme.
 		add(bg);
 		bg.screenCenter();
+
+		// GF and Dad sit behind the album artwork, like a stage for the selected track.
+		try
+		{
+			gfBackdrop = new Character(0, 0, 'gf');
+			gfBackdrop.setGraphicSize(Std.int(gfBackdrop.width * 0.62));
+			gfBackdrop.updateHitbox();
+			gfBackdrop.x = FlxG.width * 0.36;
+			gfBackdrop.y = FlxG.height * 0.17;
+			gfBackdrop.alpha = 0.48;
+			gfBackdrop.scrollFactor.set(0, 0);
+			add(gfBackdrop);
+		}
+		catch (e:Dynamic)
+		{
+			trace('OUTER!ENGINE: Could not load GF for the Freeplay backdrop.');
+		}
+
+		try
+		{
+			dadBackdrop = new Character(0, 0, 'dad');
+			dadBackdrop.setGraphicSize(Std.int(dadBackdrop.width * 0.62));
+			dadBackdrop.updateHitbox();
+			dadBackdrop.x = FlxG.width * 0.60;
+			dadBackdrop.y = FlxG.height * 0.17;
+			dadBackdrop.alpha = 0.48;
+			dadBackdrop.scrollFactor.set(0, 0);
+			add(dadBackdrop);
+		}
+		catch (e:Dynamic)
+		{
+			trace('OUTER!ENGINE: Could not load Dad for the Freeplay backdrop.');
+		}
 
 		grpSongs = new FlxTypedGroup<Alphabet>();
 		add(grpSongs);
@@ -186,6 +228,27 @@ class FreeplayState extends MusicBeatState
 		
 		player = new MusicPlayer(this);
 		add(player);
+
+		// Album card stays in the foreground while the character silhouettes remain behind it.
+		albumFrame = new FlxSprite(FlxG.width - 286, FlxG.height * 0.31);
+		albumFrame.makeGraphic(232, 232, 0xFFE2D2FF);
+		albumFrame.scrollFactor.set();
+		add(albumFrame);
+
+		albumCover = new FlxSprite(albumFrame.x + 6, albumFrame.y + 6);
+		albumCover.makeGraphic(220, 220, 0xFF6A0DAD);
+		albumCover.scrollFactor.set();
+		add(albumCover);
+
+		albumTitle = new FlxText(albumCover.x + 12, albumCover.y + 153, 196, '', 20);
+		albumTitle.setFormat(Paths.font('vcr.ttf'), 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		albumTitle.scrollFactor.set();
+		add(albumTitle);
+
+		albumHint = new FlxText(albumFrame.x - 4, albumFrame.y + 239, 240, 'NOW SELECTED', 14);
+		albumHint.setFormat(Paths.font('vcr.ttf'), 14, 0xFFE6D8FF, CENTER);
+		albumHint.scrollFactor.set();
+		add(albumHint);
 		
 		changeSelection();
 		updateTexts();
@@ -520,6 +583,8 @@ class FreeplayState extends MusicBeatState
 		_updateSongLastDifficulty();
 		if(playSound) FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 
+		refreshAlbumCover();
+
 		var newColor:Int = songs[curSelected].color;
 		if(newColor != intendedColor)
 		{
@@ -557,6 +622,56 @@ class FreeplayState extends MusicBeatState
 
 		changeDiff();
 		_updateSongLastDifficulty();
+	}
+
+	/**
+	 * Loads a song-specific album cover when a mod provides one at
+	 * images/freeplay/albums/<song-path>.png. If it does not exist, build
+	 * a lightweight color card so the menu never fails because of optional art.
+	 */
+	function refreshAlbumCover():Void
+	{
+		if (songs.length == 0 || albumCover == null)
+			return;
+
+		var songPath:String = Paths.formatToSongPath(songs[curSelected].songName);
+		var loaded:Bool = false;
+		try
+		{
+			albumCover.loadGraphic(Paths.image('freeplay/albums/' + songPath));
+			loaded = true;
+		}
+		catch (e:Dynamic)
+		{
+			loaded = false;
+		}
+
+		if (!loaded)
+		{
+			albumCover.makeGraphic(220, 220, songs[curSelected].color);
+			// Minimal geometric motif, cheap to render and tinted by the song metadata.
+			for (i in 0...8)
+			{
+				var inset:Int = 12 + i * 12;
+				for (x in inset...(220 - inset))
+				{
+					if (x < 0 || x >= 220) continue;
+					var yTop:Int = inset;
+					var yBottom:Int = 219 - inset;
+					if (yTop >= 0 && yTop < 220) albumCover.pixels.setPixel32(x, yTop, 0x66FFFFFF);
+					if (yBottom >= 0 && yBottom < 220) albumCover.pixels.setPixel32(x, yBottom, 0x66FFFFFF);
+				}
+			}
+			albumCover.dirty = true;
+		}
+		albumCover.setGraphicSize(220, 220);
+		albumCover.updateHitbox();
+		albumTitle.text = songs[curSelected].songName.toUpperCase();
+		albumTitle.x = albumCover.x + 12;
+		albumTitle.y = albumCover.y + 153;
+		albumTitle.width = 196;
+		albumFrame.color = songs[curSelected].color;
+		albumHint.text = 'ALBUM / ' + Difficulty.getString(curDifficulty).toUpperCase();
 	}
 
 	inline private function _updateSongLastDifficulty()
