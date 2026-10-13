@@ -1,0 +1,54 @@
+{
+  "songs": [
+    [
+      "Darnell",
+      "darnell",
+      [
+        146,
+        113,
+        253
+      ]
+    ],
+    [
+      "Lit Up",
+      "pico",
+      [
+        146,
+        113,
+        253
+      ]
+    ],
+    [
+      "2Hot",
+      "pico",
+      [
+        146,
+        113,
+        253
+      ]
+    ],
+    [
+      "Blazin",
+      "pico",
+      [
+        146,
+        113,
+        253
+      ]
+    ]
+  ],
+  "weekCharacters": [
+    "darnell",
+    "bf",
+    "gf"
+  ],
+  "weekBackground": "philly",
+  "storyName": "WEEKEND 1",
+  "weekBefore": "week7",
+  "weekName": "Weekend 1",
+  "startUnlocked": false,
+  "hiddenUntilUnlocked": false,
+  "hideStoryMode": false,
+  "hideFreeplay": false,
+  "difficulties": ""
+}
