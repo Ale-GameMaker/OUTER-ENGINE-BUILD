@@ -48,7 +48,7 @@ class OuterDialogueBubble extends FlxSpriteGroup
         add(nameBar);
 
         nameText = new FlxText(12, 5, width - 24, speaker == null ? "Assistant" : speaker, 16);
-        nameText.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, 0x99000000);
+        nameText.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT);
         nameText.scrollFactor.set();
         add(nameText);
 
