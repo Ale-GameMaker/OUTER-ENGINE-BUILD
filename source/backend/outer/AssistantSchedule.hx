@@ -20,6 +20,9 @@ class AssistantSchedule
 
     static var loaded:Bool = false;
     static var entries:Map<String, Dynamic> = new Map<String, Dynamic>();
+    static var cachedMinuteKey:Int = -1;
+    static var cachedComputedAtMs:Float = 0;
+    static var cachedCountdown:Float = 0;
 
     static inline var DAY_SECONDS:Float = 86400.0;
 
@@ -263,21 +266,36 @@ class AssistantSchedule
     {
         ensureLoaded();
         var nowMs:Float = timestampMs == null ? Date.now().getTime() : timestampMs;
+        var minuteKey:Int = Std.int(Math.floor(nowMs / 60000.0));
+        if (minuteKey == cachedMinuteKey)
+            return Math.max(0, cachedCountdown - (nowMs - cachedComputedAtMs) / 1000.0);
+
         var current:String = getActiveAssistant(nowMs);
         var step:Float = 60.0;
         var elapsed:Float = 0;
-        // Minute granularity is enough for the UI countdown and avoids per-frame scanning.
+        var found:Bool = false;
+
+        // Recompute at most once per wall-clock minute, never once per frame.
         while (elapsed < 48 * 3600)
         {
             elapsed += step;
-            if (getActiveAssistant(nowMs + elapsed * 1000.0) != current) return elapsed;
+            if (getActiveAssistant(nowMs + elapsed * 1000.0) != current)
+            {
+                found = true;
+                break;
+            }
         }
-        return 0;
+
+        cachedMinuteKey = minuteKey;
+        cachedComputedAtMs = nowMs;
+        cachedCountdown = found ? elapsed : 0;
+        return cachedCountdown;
     }
 
     public static function save():Void
     {
         ensureLoaded();
+        cachedMinuteKey = -1;
         try
         {
             if (FlxG.save == null) return;
