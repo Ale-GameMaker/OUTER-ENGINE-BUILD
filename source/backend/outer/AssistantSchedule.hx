@@ -36,11 +36,13 @@ class AssistantSchedule
         entries.set("OuterSky", makeEntry(true, 18, 0, 12, [0, 1, 2, 3, 4, 5, 6], "evening"));
         entries.set("OuterNikku", makeEntry(false, 0, 0, 8, [1, 2, 3, 4, 5], "workday"));
         entries.set("OuterCarol", makeEntry(false, 9, 0, 8, [1, 2, 3, 4, 5], "workday"));
+        var hasSavedSchedule:Bool = false;
 
         try
         {
             if (FlxG.save != null && FlxG.save.data.outerAssistantSchedule != null)
             {
+                hasSavedSchedule = true;
                 var saved:Dynamic = FlxG.save.data.outerAssistantSchedule;
                 if (Reflect.hasField(saved, "timezoneOffset")) timezoneOffset = Std.int(saved.timezoneOffset);
                 if (Reflect.hasField(saved, "globallyEnabled")) globallyEnabled = saved.globallyEnabled == true;
@@ -62,8 +64,17 @@ class AssistantSchedule
             trace("OUTER!ENGINE schedule: could not load saved configuration: " + e);
         }
 
-        var hasSharedFile:Bool = loadSharedFile();
-        if (!hasSharedFile) writeSharedFile();
+        if (hasSavedSchedule)
+        {
+            // The engine save is authoritative when present. Re-export it so a
+            // worker started before the game cannot overwrite existing settings.
+            writeSharedFile();
+        }
+        else
+        {
+            var hasSharedFile:Bool = loadSharedFile();
+            if (!hasSharedFile) writeSharedFile();
+        }
     }
 
     static function makeEntry(enabled:Bool, hour:Int, minute:Int, duration:Int, days:Array<Int>, preset:String):Dynamic
