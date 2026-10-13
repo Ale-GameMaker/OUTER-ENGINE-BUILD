@@ -93,8 +93,8 @@ class FreeplayState extends MusicBeatState
 
 		for (i in 0...WeekData.weeksList.length)
 		{
-			if(weekIsLocked(WeekData.weeksList[i])) continue;
-
+			// Freeplay is a song browser: story progression must not hide base-game tracks.
+			// reloadWeekFiles(false) already filters weeks explicitly marked hideFreeplay.
 			var leWeek:WeekData = WeekData.weeksLoaded.get(WeekData.weeksList[i]);
 			var leSongs:Array<String> = [];
 			var leChars:Array<String> = [];
