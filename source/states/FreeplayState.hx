@@ -17,10 +17,6 @@ import flixel.util.FlxDestroyUtil;
 import openfl.utils.Assets;
 
 import haxe.Json;
-#if flxanimate
-import flxanimate._PsychFlxAnimate.FlxAnimate;
-#end
-
 class FreeplayState extends MusicBeatState
 {
 	var songs:Array<SongMetadata> = [];
@@ -57,9 +53,6 @@ class FreeplayState extends MusicBeatState
 	var player:MusicPlayer;
 
 	// V-Slice-inspired Freeplay presentation.
-	#if flxanimate
-	var boyfriendDJ:FlxAnimate;
-	#end
 	var freeplayHeader:FlxText;
 	var freeplaySubheader:FlxText;
 	var albumCover:FlxSprite;
@@ -124,30 +117,9 @@ class FreeplayState extends MusicBeatState
 		add(bg);
 		bg.screenCenter();
 
-		// V-Slice's animated Boyfriend DJ atlas is optional during development.
-		// If its files are installed, use the real animated DJ; otherwise the menu
-		// keeps working with the built-in purple backdrop and album card.
-		#if flxanimate
-		try
-		{
-			boyfriendDJ = new FlxAnimate(0, 0);
-			Paths.loadAnimateAtlas(boyfriendDJ, 'freeplay/freeplay-boyfriend');
-			boyfriendDJ.anim.addBySymbol('idle', 'Idle', 24, true);
-			boyfriendDJ.anim.play('idle');
-			boyfriendDJ.setGraphicSize(Std.int(boyfriendDJ.width * 0.78));
-			boyfriendDJ.updateHitbox();
-			boyfriendDJ.x = 18;
-			boyfriendDJ.y = 110;
-			boyfriendDJ.alpha = 0.96;
-			boyfriendDJ.scrollFactor.set();
-			add(boyfriendDJ);
-		}
-		catch (e:Dynamic)
-		{
-			boyfriendDJ = null;
-			trace('OUTER!ENGINE: V-Slice Boyfriend DJ assets not found. Install freeplay-boyfriend to enable the animation.');
-		}
-		#end
+		// V-Slice DJ animation is temporarily disabled until the installed
+		// animation library API can be matched to this source tree.
+
 
 		freeplayHeader = new FlxText(330, 48, FlxG.width - 650, 'FREEPLAY', 38);
 		freeplayHeader.setFormat(Paths.font('vcr.ttf'), 38, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
