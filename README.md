@@ -1,8 +1,4 @@
 <p align="center">
-  <img src="assets/outer-engine-logo.svg" alt="OUTER!ENGINE" width="760">
-</p>
-
-<p align="center">
   <strong>A cosmic modding engine built around creativity, customization, and the OUTER! universe.</strong><br>
   <em>Powered by HaxeFlixel. Shaped by MinusBright.</em>
 </p>
