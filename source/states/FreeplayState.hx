@@ -17,6 +17,9 @@ import flixel.util.FlxDestroyUtil;
 import openfl.utils.Assets;
 
 import haxe.Json;
+#if flxanimate
+import flxanimate.FlxAnimate;
+#end
 
 class FreeplayState extends MusicBeatState
 {
@@ -53,9 +56,12 @@ class FreeplayState extends MusicBeatState
 
 	var player:MusicPlayer;
 
-	// V-Slice-inspired album presentation.
-	var gfBackdrop:Character;
-	var dadBackdrop:Character;
+	// V-Slice-inspired Freeplay presentation.
+	#if flxanimate
+	var boyfriendDJ:FlxAnimate;
+	#end
+	var freeplayHeader:FlxText;
+	var freeplaySubheader:FlxText;
 	var albumCover:FlxSprite;
 	var albumFrame:FlxSprite;
 	var albumTitle:FlxText;
@@ -118,49 +124,51 @@ class FreeplayState extends MusicBeatState
 		add(bg);
 		bg.screenCenter();
 
-		// GF and Dad sit behind the album artwork, like a stage for the selected track.
+		// V-Slice's animated Boyfriend DJ atlas is optional during development.
+		// If its files are installed, use the real animated DJ; otherwise the menu
+		// keeps working with the built-in purple backdrop and album card.
+		#if flxanimate
 		try
 		{
-			gfBackdrop = new Character(0, 0, 'gf');
-			gfBackdrop.setGraphicSize(Std.int(gfBackdrop.width * 0.62));
-			gfBackdrop.updateHitbox();
-			gfBackdrop.x = FlxG.width * 0.36;
-			gfBackdrop.y = FlxG.height * 0.17;
-			gfBackdrop.alpha = 0.48;
-			gfBackdrop.scrollFactor.set(0, 0);
-			add(gfBackdrop);
+			boyfriendDJ = new FlxAnimate(0, 0);
+			Paths.loadAnimateAtlas(boyfriendDJ, 'freeplay/freeplay-boyfriend');
+			boyfriendDJ.anim.addBySymbol('idle', 'Idle', 24, true);
+			boyfriendDJ.anim.play('idle');
+			boyfriendDJ.setGraphicSize(Std.int(boyfriendDJ.width * 0.78));
+			boyfriendDJ.updateHitbox();
+			boyfriendDJ.x = 18;
+			boyfriendDJ.y = 110;
+			boyfriendDJ.alpha = 0.96;
+			boyfriendDJ.scrollFactor.set();
+			add(boyfriendDJ);
 		}
 		catch (e:Dynamic)
 		{
-			trace('OUTER!ENGINE: Could not load GF for the Freeplay backdrop.');
+			boyfriendDJ = null;
+			trace('OUTER!ENGINE: V-Slice Boyfriend DJ assets not found. Install freeplay-boyfriend to enable the animation.');
 		}
+		#end
 
-		try
-		{
-			dadBackdrop = new Character(0, 0, 'dad');
-			dadBackdrop.setGraphicSize(Std.int(dadBackdrop.width * 0.62));
-			dadBackdrop.updateHitbox();
-			dadBackdrop.x = FlxG.width * 0.60;
-			dadBackdrop.y = FlxG.height * 0.17;
-			dadBackdrop.alpha = 0.48;
-			dadBackdrop.scrollFactor.set(0, 0);
-			add(dadBackdrop);
-		}
-		catch (e:Dynamic)
-		{
-			trace('OUTER!ENGINE: Could not load Dad for the Freeplay backdrop.');
-		}
+		freeplayHeader = new FlxText(330, 48, FlxG.width - 650, 'FREEPLAY', 38);
+		freeplayHeader.setFormat(Paths.font('vcr.ttf'), 38, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		freeplayHeader.scrollFactor.set();
+		add(freeplayHeader);
+
+		freeplaySubheader = new FlxText(333, 91, FlxG.width - 670, 'CHOOSE A TRACK  /  LEFT + RIGHT TO CHANGE DIFFICULTY', 14);
+		freeplaySubheader.setFormat(Paths.font('vcr.ttf'), 14, 0xFFE6D8FF, LEFT);
+		freeplaySubheader.scrollFactor.set();
+		add(freeplaySubheader);
 
 		grpSongs = new FlxTypedGroup<Alphabet>();
 		add(grpSongs);
 
 		for (i in 0...songs.length)
 		{
-			var songText:Alphabet = new Alphabet(90, 320, songs[i].songName, true);
+			var songText:Alphabet = new Alphabet(330, 320, songs[i].songName, true);
 			songText.targetY = i;
 			grpSongs.add(songText);
 
-			songText.scaleX = Math.min(1, 980 / songText.width);
+			songText.scaleX = Math.min(1, 610 / songText.width);
 			songText.snapToPosition();
 
 			Mods.currentModDirectory = songs[i].folder;
