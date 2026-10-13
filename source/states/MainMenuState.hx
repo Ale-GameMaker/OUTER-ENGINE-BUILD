@@ -3,6 +3,7 @@ package states;
 import backend.WeekData;
 import backend.Highscore;
 import backend.Song;
+import backend.outer.OuterPerformance;
 
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -249,7 +250,10 @@ class MainMenuState extends MusicBeatState
         starGroup = new FlxTypedGroup<FlxSprite>();
         stars = [];
 
-        for (i in 0...85)
+        var starCount:Int = Std.int(85 * OuterPerformance.getParticleMultiplier());
+        if (starCount < 20) starCount = 20;
+
+        for (i in 0...starCount)
         {
             var star:FlxSprite = new FlxSprite();
 
