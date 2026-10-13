@@ -3,6 +3,8 @@ package states;
 import backend.WeekData;
 import backend.Highscore;
 import backend.Song;
+import backend.outer.OuterPerformance;
+import backend.outer.OuterTheme;
 
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -16,6 +18,7 @@ import flixel.util.FlxColor;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 import lime.app.Application;
+import openfl.geom.Rectangle;
 
 import states.StoryMenuState;
 import states.FreeplayState;
@@ -70,7 +73,7 @@ class MainMenuState extends MusicBeatState
         persistentUpdate = true;
         persistentDraw = true;
 
-        FlxG.camera.bgColor = 0xFF10091D;
+        FlxG.camera.bgColor = OuterTheme.SPACE;
         FlxG.camera.zoom = 1;
 
         createGalaxyBackground();
@@ -120,7 +123,7 @@ class MainMenuState extends MusicBeatState
     private function createGalaxyBackground():Void
     {
         galaxyBackground = new FlxSprite();
-        galaxyBackground.makeGraphic(320, 180, 0xFF10091D, true);
+        galaxyBackground.makeGraphic(320, 180, OuterTheme.SPACE, true);
 
         var bitmap = galaxyBackground.pixels;
 
@@ -178,18 +181,14 @@ class MainMenuState extends MusicBeatState
             true
         );
 
-        for (y in 0...checkerTileHeight)
+        for (cellY in 0...Std.int(checkerTileHeight / cellSize))
         {
-            for (x in 0...checkerTileWidth)
+            for (cellX in 0...Std.int(checkerTileWidth / cellSize))
             {
-                var cellX:Int = Std.int(x / cellSize);
-                var cellY:Int = Std.int(y / cellSize);
-
                 if ((cellX + cellY) % 2 == 0)
                 {
-                    checkerGraphic.pixels.setPixel32(
-                        x,
-                        y,
+                    checkerGraphic.pixels.fillRect(
+                        new Rectangle(cellX * cellSize, cellY * cellSize, cellSize, cellSize),
                         0x45FFFFFF
                     );
                 }
@@ -255,8 +254,8 @@ class MainMenuState extends MusicBeatState
 
             var size:Int = (i % 9 == 0) ? 3 : 2;
             var color:Int = (i % 4 == 0)
-                ? 0xFFFFDFFF
-                : 0xFFBDA8FF;
+                ? OuterTheme.STAR_PINK
+                : OuterTheme.STAR_LILAC;
 
             star.makeGraphic(size, size, color);
             star.x = (i * 97 + 31) % FlxG.width;
@@ -275,12 +274,18 @@ class MainMenuState extends MusicBeatState
     {
         updateCheckerboard(elapsed);
 
+        var activeStarCount:Int = Std.int(stars.length * OuterPerformance.getParticleMultiplier());
+        if (activeStarCount < 12) activeStarCount = 12;
+
         for (i in 0...stars.length)
         {
             var star:FlxSprite = stars[i];
 
             if (star == null)
                 continue;
+
+            star.visible = i < activeStarCount;
+            if (!star.visible) continue;
 
             star.y += (5 + (i % 3) * 2) * elapsed;
 

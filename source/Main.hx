@@ -41,6 +41,7 @@ import haxe.io.Path;
 #end
 
 import backend.Highscore;
+import backend.outer.OuterPerformance;
 
 // NATIVE API STUFF, YOU CAN IGNORE THIS AND SCROLL //
 #if (linux && !debug)
@@ -94,6 +95,7 @@ class Main extends Sprite
 		Mods.loadTopMod();
 
 		FlxG.save.bind('funkin', CoolUtil.getSavePath());
+		OuterPerformance.loadSettings();
 		Highscore.load();
 
 		#if HSCRIPT_ALLOWED
@@ -184,6 +186,7 @@ class Main extends Sprite
 			game.skipSplash,
 			game.startFullscreen
 		));
+		OuterPerformance.applyFrameRate();
 
 		#if !mobile
 		fpsVar = new FPSCounter(10, 3, 0xFFFFFF);

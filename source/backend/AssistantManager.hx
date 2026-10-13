@@ -1,6 +1,7 @@
 package backend;
 
 import flixel.FlxG;
+import backend.outer.AssistantSchedule;
 
 /**
  * Manages the rotating 12-hour specialist schedule.
@@ -18,6 +19,7 @@ class AssistantManager
     public static var isMinusBrightGlobal:Bool = false;
 
     static var lastSlot:Int = -1;
+    static var lastScheduledAssistant:String = "";
     static var elapsedFallback:Float = 0;
 
     static inline var SHIFT_SECONDS:Float = 12 * 60 * 60;
@@ -26,35 +28,31 @@ class AssistantManager
     /** Call from a state update if the UI needs a live countdown. */
     public static function updateTimer(elapsed:Float):Void
     {
-        elapsedFallback += elapsed;
-        var now:Float = Date.now().getTime() / 1000.0;
-        var localNow:Float = now + timeZoneOffset * 3600.0;
-        var slot:Int = Std.int(Math.floor(localNow / SHIFT_SECONDS));
-        var rotationIndex:Int = slot % rotation.length;
-        if (rotationIndex < 0) rotationIndex += rotation.length;
+        AssistantSchedule.ensureLoaded();
+        timeZoneOffset = AssistantSchedule.timezoneOffset;
 
-        var remaining:Float = SHIFT_SECONDS - (localNow % SHIFT_SECONDS);
-        if (remaining < 0 || remaining > SHIFT_SECONDS) remaining = SHIFT_SECONDS;
-
-        if (slot != lastSlot)
+        var active:String = AssistantSchedule.getActiveAssistant();
+        if (active != lastScheduledAssistant)
         {
-            lastSlot = slot;
-            currentAssistant = rotation[rotationIndex];
+            lastScheduledAssistant = active;
+            currentAssistant = active;
         }
-        usageTimeLeft = remaining;
-        isMinusBrightGlobal = false;
+        usageTimeLeft = AssistantSchedule.getSecondsUntilChange();
+        isMinusBrightGlobal = (currentAssistant == "MinusBright");
     }
 
     /** Recalculate immediately after changing timezone or Sky's variant. */
     public static function refreshSchedule():Void
     {
         lastSlot = -1;
+        lastScheduledAssistant = "";
         updateTimer(0);
     }
 
     public static function resetShift():Void
     {
         lastSlot = -1;
+        lastScheduledAssistant = "";
         elapsedFallback = 0;
         refreshSchedule();
     }
