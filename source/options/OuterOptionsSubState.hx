@@ -133,7 +133,7 @@ class OuterOptionsSubState extends MusicBeatSubstate
                     "\nSchedule settings are persisted in the engine save data.";
             case 6:
                 descText.text = "Execution mode: " + AssistantSchedule.executionMode.toUpperCase() +
-                    "\nENGINE runs schedules inside the game. BACKGROUND is reserved for the separate worker. BOTH enables both modes.";
+                    "\nENGINE runs schedules inside the game. BACKGROUND uses the standalone worker when the game is closed. Run tools/start_outer_assistant_scheduler.bat. BOTH enables in-game scheduling and the worker.";
             case 7:
                 descText.text = "Global schedule: " + (AssistantSchedule.globallyEnabled ? "ENABLED" : "DISABLED") +
                     "\nWhen disabled, scheduled specialists go offline and MinusBright remains available.";
