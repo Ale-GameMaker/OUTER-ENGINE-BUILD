@@ -19,6 +19,7 @@ class AssistantManager
     public static var isMinusBrightGlobal:Bool = false;
 
     static var lastSlot:Int = -1;
+    static var lastScheduledAssistant:String = "";
     static var elapsedFallback:Float = 0;
 
     static inline var SHIFT_SECONDS:Float = 12 * 60 * 60;
@@ -31,21 +32,27 @@ class AssistantManager
         timeZoneOffset = AssistantSchedule.timezoneOffset;
 
         var active:String = AssistantSchedule.getActiveAssistant();
-        currentAssistant = active;
+        if (active != lastScheduledAssistant)
+        {
+            lastScheduledAssistant = active;
+            currentAssistant = active;
+        }
         usageTimeLeft = AssistantSchedule.getSecondsUntilChange();
-        isMinusBrightGlobal = (active == "MinusBright");
+        isMinusBrightGlobal = (currentAssistant == "MinusBright");
     }
 
     /** Recalculate immediately after changing timezone or Sky's variant. */
     public static function refreshSchedule():Void
     {
         lastSlot = -1;
+        lastScheduledAssistant = "";
         updateTimer(0);
     }
 
     public static function resetShift():Void
     {
         lastSlot = -1;
+        lastScheduledAssistant = "";
         elapsedFallback = 0;
         refreshSchedule();
     }
