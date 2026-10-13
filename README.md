@@ -1,127 +1,74 @@
-![PsychionalEngineLogo](docs/img/PsychEngineLogoTweak.png)
+# 🌌 OUTER!ENGINE
 
-Engine originally used on [Mind Games Mod](https://gamebanana.com/mods/301107), intended to be a fix for the vanilla version's many issues while keeping the casual play aspect of it. Also aiming to be an easier alternative to newbie coders.
+<p align="center">
+  <strong>A cosmic modding engine built around creativity, customization, and the OUTER! universe.</strong><br>
+  <em>Powered by HaxeFlixel. Shaped by MinusBright.</em>
+</p>
 
-## Installation:
+<p align="center">
+  <img src="docs/img/PsychEngineLogoTweak.png" alt="OUTER!ENGINE" width="420">
+</p>
 
-Refer to [the Build Instructions](/docs/BUILDING.md)
+> **Project status:** work in progress. OUTER!ENGINE is based on Psych Engine code, with its own direction, tools, and cosmic identity. Some systems are experimental and may need build validation.
 
-## Customization:
+## ✨ The OUTER!ENGINE vision
 
-If you wish to disable things like *Lua Scripts* or *Video Cutscenes*, you can refer to the `Project.xml` file.
+OUTER!ENGINE aims to make Friday Night Funkin' modding feel like exploring a galaxy of possibilities, without throwing away the flexibility of a source-based engine.
 
-Inside `Project.xml`, you will find several variables to customize Psych Engine to your liking.
+- **Cosmic interface:** a deep-space palette, violet energy, drifting stars, and a distinctive OUTER! presentation.
+- **Modding-first foundations:** build on the existing HaxeFlixel/Psych codebase instead of pretending the project started from zero.
+- **Assistant scheduling:** configurable assistant shifts, per-assistant hours, weekday rules, presets, and an optional global switch.
+- **Performance tools:** frame-time telemetry, configurable FPS caps, and experimental adaptive-quality controls.
+- **Extensible direction:** keep existing gameplay, Lua/HScript support, and familiar modding workflows wherever possible.
 
-To start you off, disabling *Video Cutscenes* should be simple, simply delete the line `"VIDEOS_ALLOWED"` or comment it out by wrapping the line in XML-like comments, like this: `<!-- YOUR_LINE_HERE -->`
+## 🤖 Assistant schedules
 
-Same goes for *Lua Scripts*, comment out or delete the line with `LUA_ALLOWED`, this and other customization options are all available within the `Project.xml` file.
+The schedule system is designed to let developers configure when each assistant is active.
 
-## Softcoding (.lua/.hx)
-For this you can head over to [the wiki](https://shadowmario.github.io/psychengine.lua)
+- Per-assistant start time and shift duration.
+- Day-of-week profiles and ready-made schedule presets.
+- Optional global enable/disable control.
+- ENGINE, BACKGROUND, and BOTH execution modes.
+- A shared outer_assistant_schedule.json configuration for the game and the optional background scheduler.
 
-There you can learn how to use the 212 PlayState funcions in your mod!
+The standalone scheduler currently calculates availability and exposes local status endpoints. **Connecting an assistant to Discord or another external provider requires a provider adapter and is not included in the scheduler worker itself.**
 
-## Credits:
-* Shadow Mario - Main Programmer and Head of Psych Engine.
-* Riveren - Main Artist/Animator of Psych Engine.
+See [Assistant Scheduler documentation](docs/ASSISTANT_SCHEDULER.md).
 
-### Special Thanks
-* bbpanzu - Ex-Team Member (Programmer).
-* crowplexus - HScript Iris, Input System v3, and Other PRs.
-* Kamizeta - Creator of Pessy, Psych Engine's mascot.
-* MaxNeton - Loading Screen Easter Egg Artist/Animator.
-* Keoiki - Note Splash Animations and Latin Alphabet.
-* SqirraRNG - Crash Handler and Base code for Chart Editor's Waveform.
-* EliteMasterEric - Runtime Shaders support and Other PRs.
-* MAJigsaw77 - .MP4 Video Loader Library (hxvlc).
-* iFlicky - Composer of Psync, Tea Time and some sound effects.
-* KadeDev - Fixed some issues on Chart Editor and Other PRs.
-* superpowers04 - LUA JIT Fork.
-* CheemsAndFriends - Creator of FlxAnimate.
-* Ezhalt - Pessy's Easter Egg Jingle.
-* MaliciousBunny - Video for the Final Update.
+## 🚀 Performance and frame pacing
 
-***
+The performance tools track frame time, average and worst frame time, hitch counts, and estimated dropped frames. FPS caps and quality profiles can be configured, while the adaptive profile can lower or restore optional visual quality based on sustained frame pacing.
 
-# Features
+These controls are a foundation, not a promise that every mod will run faster. Heavy Lua/HScript logic, shaders, video playback, and asset loading can still affect performance.
 
-## Attractive animated dialogue boxes:
+## 🛠️ Building from source
 
-![Animated Dialogue Boxes](docs/img/dialogue.gif)
+OUTER!ENGINE uses the HaxeFlixel/Lime toolchain inherited from its upstream codebase. Start with the repository's build instructions:
 
-## New Main Menu
-* A brand new menu that makes your experience even better!
-![Main Menu](docs/img/MainMenu.png)
+- [Build instructions](docs/BUILDING.md)
+- [Assistant scheduler setup](docs/ASSISTANT_SCHEDULER.md)
 
-## Mod Support
-* Probably one of the main points of this engine, you can code in .lua files outside of the source code, making your own weeks without even messing with the source!
-* Comes with a Mod Organizing/Disabling Menu.
-![Mod Support](docs/img/ModsMenu.png)
+Use the versions of Haxe, HaxeFlixel, Lime, and other libraries expected by this checkout. Because the project is actively changing, compile the current branch before treating it as a stable release.
 
+## 🪐 The cosmic crew
 
-## Atleast one change to every week:
-### Week 1:
-  * New Dad Left sing sprite
-  * Unused stage lights are now used
-  * Dad Battle has a spotlight effect for the breakdown
-### Week 2:
-  * Both BF and Skid & Pump does "Hey!" animations
-  * Thunders does a quick light flash and zooms the camera in slightly
-  * Added a quick transition/cutscene to Monster
-### Week 3:
-  * BF does "Hey!" during Philly Nice
-  * Blammed has a cool new colors flash during that sick part of the song
-### Week 4:
-  * Better hair physics for Mom/Boyfriend (Maybe even slightly better than Week 7's :eyes:)
-  * Henchmen die during all songs. Yeah :(
-### Week 5:
-  * Bottom Boppers and GF does "Hey!" animations during Cocoa and Eggnog
-  * On Winter Horrorland, GF bops her head slower in some parts of the song.
-### Week 6:
-  * On Thorns, the HUD is hidden during the cutscene
-  * Also there's the Background girls being spooky during the "Hey!" parts of the Instrumental
+- **MinusBright:** the OUTER!ENGINE assistant and cosmic guide.
+- **PlusVoid:** the black-hole brother who would probably rather compile Haxe to C++ and take a nap.
 
-## Cool new Chart Editor changes and countless bug fixes
-![Chart Editor](docs/img/chart.png)
-* You can now chart "Event" notes, which are bookmarks that trigger specific actions that usually were hardcoded on the vanilla version of the game.
-* Your song's BPM can now have decimal values
-* You can manually adjust a Note's strum time if you're really going for milisecond precision
-* You can change a note's type on the Editor, it comes with five example types:
-  * Alt Animation: Forces an alt animation to play, useful for songs like Ugh/Stress
-  * Hey: Forces a "Hey" animation instead of the base Sing animation, if Boyfriend hits this note, Girlfriend will do a "Hey!" too.
-  * Hurt Notes: If Boyfriend hits this note, he plays a miss animation and loses some health.
-  * GF Sing: Rather than the character hitting the note and singing, Girlfriend sings instead.
-  * No Animation: Character just hits the note, no animation plays.
+Assistant personalities and lore are part of the project's own identity; they do not replace credits for the engine's existing code.
 
-## Multiple editors to assist you in making your own Mod
-![Master Editor Menu](docs/img/editors.png)
-* Working both for Source code modding and Downloaded builds!
+## 🧩 Upstream foundation and credits
 
-## Story mode menu rework:
-![Story Mode Menu](docs/img/storymode.png)
-* Added a different BG to every song (less Tutorial)
-* All menu characters are now in individual spritesheets, makes modding it easier.
+OUTER!ENGINE builds on code from **Psych Engine** and its wider open-source ecosystem. The project retains the applicable upstream licenses and attribution for code and assets it uses. This README is an OUTER!ENGINE project overview, not a claim of sole authorship of the underlying engine.
 
-## Credits menu
-![Credits Menu](docs/img/credits.png)
-* You can add a head icon, name, description and a Redirect link for when the player presses Enter while the item is currently selected.
+Please consult the repository's license and the upstream project's own credits for the original contributors and third-party libraries.
 
-## Awards/Achievements
-* The engine comes with 16 example achievements that you can mess with and learn how it works (Check Achievements.hx and search for "checkForAchievement" on PlayState.hx)
-![Achievements](docs/img/Achievements.png)
+## 📌 Current development
 
-## Options menu:
-* You can change Note colors, Delay and Combo Offset, Controls and Preferences there.
- * On Preferences you can toggle Downscroll, Middlescroll, Anti-Aliasing, Framerate, Low Quality, Note Splashes, Flashing Lights, etc.
-![Options](docs/img/Options.png)
+This project is under active development. Features may be incomplete, experimental, or awaiting compilation and runtime testing. Please report reproducible bugs with your operating system, build target, and the exact steps that trigger the issue.
 
-## Other gameplay features:
-* When the enemy hits a note, their strum note also glows.
-* Lag doesn't impact the camera movement and player icon scaling anymore.
-* Some stuff based on Week 7's changes has been put in (Background colors on Freeplay, Note splashes)
-* You can reset your Score on Freeplay/Story Mode by pressing Reset button.
-* You can listen to a song or adjust Scroll Speed/Damage taken/etc. on Freeplay by pressing Space.
-* You can enable "Combo Stacking" in Gameplay Options. This causes the combo sprites to just be one sprite with an animation rather than sprites spawning each note hit.
+---
 
-
-#### Psych Engine by ShadowMario, Friday Night Funkin' by ninjamuffin99
+<p align="center">
+  <sub>OUTER!ENGINE • Beyond the familiar. Into the OUTER.</sub>
+</p>
