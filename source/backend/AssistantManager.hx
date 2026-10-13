@@ -1,6 +1,7 @@
 package backend;
 
 import flixel.FlxG;
+import backend.outer.AssistantSchedule;
 
 /**
  * Manages the rotating 12-hour specialist schedule.
@@ -26,23 +27,13 @@ class AssistantManager
     /** Call from a state update if the UI needs a live countdown. */
     public static function updateTimer(elapsed:Float):Void
     {
-        elapsedFallback += elapsed;
-        var now:Float = Date.now().getTime() / 1000.0;
-        var localNow:Float = now + timeZoneOffset * 3600.0;
-        var slot:Int = Std.int(Math.floor(localNow / SHIFT_SECONDS));
-        var rotationIndex:Int = slot % rotation.length;
-        if (rotationIndex < 0) rotationIndex += rotation.length;
+        AssistantSchedule.ensureLoaded();
+        timeZoneOffset = AssistantSchedule.timezoneOffset;
 
-        var remaining:Float = SHIFT_SECONDS - (localNow % SHIFT_SECONDS);
-        if (remaining < 0 || remaining > SHIFT_SECONDS) remaining = SHIFT_SECONDS;
-
-        if (slot != lastSlot)
-        {
-            lastSlot = slot;
-            currentAssistant = rotation[rotationIndex];
-        }
-        usageTimeLeft = remaining;
-        isMinusBrightGlobal = false;
+        var active:String = AssistantSchedule.getActiveAssistant();
+        currentAssistant = active;
+        usageTimeLeft = AssistantSchedule.getSecondsUntilChange();
+        isMinusBrightGlobal = (active == "MinusBright");
     }
 
     /** Recalculate immediately after changing timezone or Sky's variant. */
