@@ -18,7 +18,7 @@ import openfl.utils.Assets;
 
 import haxe.Json;
 #if flxanimate
-import flxanimate.FlxAnimate;
+import flxanimate._PsychFlxAnimate.FlxAnimate;
 #end
 
 class FreeplayState extends MusicBeatState
