@@ -30,7 +30,8 @@ class OuterOptionsSubState extends MusicBeatSubstate
         "Target Active Days",
         "FPS Target",
         "Graphics Quality Profile",
-        "Adaptive Quality Controller"
+        "Adaptive Quality Controller",
+        "Target Start Minute"
     ];
 
     var curSelected:Int = 0;
@@ -165,6 +166,9 @@ class OuterOptionsSubState extends MusicBeatSubstate
             case 16:
                 descText.text = "Adaptive quality controller: " + (OuterPerformance.adaptiveQuality ? "ENABLED" : "DISABLED") +
                     "\nWhen using the ADAPTIVE profile, sustained slow frame pacing lowers the quality tier; stable performance gradually restores it.";
+            case 17:
+                descText.text = target + " starts at " + formatTime(entry.startHour, entry.startMinute) +
+                    "\nLeft/Right adjusts the start minute in 5-minute steps. Overnight shifts are supported.";
         }
     }
 
@@ -282,6 +286,12 @@ class OuterOptionsSubState extends MusicBeatSubstate
 
             case 16:
                 OuterPerformance.setAdaptiveQuality(!OuterPerformance.adaptiveQuality);
+
+            case 17:
+                var entry:Dynamic = AssistantSchedule.getEntry(scheduleTargets[scheduleTargetIndex]);
+                var minute:Int = (entry.startMinute + direction * 5 + 60) % 60;
+                AssistantSchedule.setStartTime(scheduleTargets[scheduleTargetIndex], entry.startHour, minute);
+                AssistantManager.refreshSchedule();
         }
     }
 
