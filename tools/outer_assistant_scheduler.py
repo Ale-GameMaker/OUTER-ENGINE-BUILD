@@ -99,7 +99,7 @@ def active_bot(config: dict[str, Any], timestamp: float | None = None) -> tuple[
         return "MinusBright", None
 
     # Prefer the active shift that started most recently. Roster order breaks ties.
-    _, selected = max(candidates, key=lambda item: item[0])
+    _, selected = min(candidates, key=lambda item: item[0])
     entry = config["entries"][selected]
     start = int(entry.get("startHour", 0)) * 3600 + int(entry.get("startMinute", 0)) * 60
     elapsed = second_of_day - start
