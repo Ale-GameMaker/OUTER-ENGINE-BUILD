@@ -41,20 +41,20 @@ class OuterAtlasLoader
     }
 
     /** Load any supported static atlas. AUTO detects XML, JSON, or Packer TXT. */
-    public static function loadFrames(key:String, ?format:OuterAtlasFormat = AUTO, ?parentFolder:String = null, ?allowGPU:Bool = true):FlxAtlasFrames
+    public static function loadFrames(key:String, ?format:OuterAtlasFormat = OuterAtlasFormat.AUTO, ?parentFolder:String = null, ?allowGPU:Bool = true):FlxAtlasFrames
     {
         var resolved:OuterAtlasFormat = (format == OuterAtlasFormat.AUTO) ? detect(key, parentFolder) : format;
         switch (resolved)
         {
-            case SPARROW:
+            case OuterAtlasFormat.SPARROW:
                 return Paths.getSparrowAtlas(key, parentFolder, allowGPU);
-            case TEXTURE_PACKER_JSON:
+            case OuterAtlasFormat.TEXTURE_PACKER_JSON:
                 return Paths.getAsepriteAtlas(key, parentFolder, allowGPU);
-            case SPRITESHEET_PACKER:
+            case OuterAtlasFormat.SPRITESHEET_PACKER:
                 return Paths.getPackerAtlas(key, parentFolder, allowGPU);
-            case VSLICE:
+            case OuterAtlasFormat.VSLICE:
                 throw 'Atlas "$key" is a V-Slice animation bundle. Use loadVSlice() with FlxAnimate.';
-            case AUTO, UNKNOWN:
+            case OuterAtlasFormat.AUTO, OuterAtlasFormat.UNKNOWN:
                 throw 'Could not detect a supported atlas for "$key". Expected PNG plus XML, JSON, TXT, or a V-Slice bundle.';
         }
     }
