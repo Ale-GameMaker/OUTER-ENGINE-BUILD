@@ -1,6 +1,7 @@
 package states;
 
 import backend.WeekData;
+import backend.AssistantManager;
 import backend.Highscore;
 import backend.Song;
 import backend.outer.OuterPerformance;
@@ -25,6 +26,7 @@ import states.FreeplayState;
 import states.CreditsState;
 import states.AchievementsMenuState;
 import options.OptionsState;
+import objects.outer.OuterDialogueBubble;
 
 class MainMenuState extends MusicBeatState
 {
@@ -65,6 +67,7 @@ class MainMenuState extends MusicBeatState
     private var optionsButton:FlxSprite;
 
     private var camLerp:Float = 0.08;
+    private var assistantDialogue:OuterDialogueBubble;
 
     override public function create():Void
     {
@@ -110,6 +113,19 @@ class MainMenuState extends MusicBeatState
         createMainButtons();
         createRightButtons();
         createVersionText();
+
+        // Assistant speech uses a bubble with a typewriter effect, never a DM-style panel.
+        AssistantManager.updateTimer(0);
+        assistantDialogue = new OuterDialogueBubble(
+            FlxG.width - 470,
+            FlxG.height - 138,
+            430,
+            104,
+            AssistantManager.getAssistantDisplayName(),
+            AssistantManager.getDialogue("welcome"),
+            AssistantManager.getAssistantColor()
+        );
+        add(assistantDialogue);
 
         FlxG.camera.follow(camFollow, null, camLerp);
 
