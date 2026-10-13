@@ -17,6 +17,7 @@ import flixel.util.FlxColor;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 import lime.app.Application;
+import openfl.geom.Rectangle;
 
 import states.StoryMenuState;
 import states.FreeplayState;
@@ -179,18 +180,14 @@ class MainMenuState extends MusicBeatState
             true
         );
 
-        for (y in 0...checkerTileHeight)
+        for (cellY in 0...Std.int(checkerTileHeight / cellSize))
         {
-            for (x in 0...checkerTileWidth)
+            for (cellX in 0...Std.int(checkerTileWidth / cellSize))
             {
-                var cellX:Int = Std.int(x / cellSize);
-                var cellY:Int = Std.int(y / cellSize);
-
                 if ((cellX + cellY) % 2 == 0)
                 {
-                    checkerGraphic.pixels.setPixel32(
-                        x,
-                        y,
+                    checkerGraphic.pixels.fillRect(
+                        new Rectangle(cellX * cellSize, cellY * cellSize, cellSize, cellSize),
                         0x45FFFFFF
                     );
                 }
@@ -250,10 +247,7 @@ class MainMenuState extends MusicBeatState
         starGroup = new FlxTypedGroup<FlxSprite>();
         stars = [];
 
-        var starCount:Int = Std.int(85 * OuterPerformance.getParticleMultiplier());
-        if (starCount < 20) starCount = 20;
-
-        for (i in 0...starCount)
+        for (i in 0...85)
         {
             var star:FlxSprite = new FlxSprite();
 
@@ -279,12 +273,18 @@ class MainMenuState extends MusicBeatState
     {
         updateCheckerboard(elapsed);
 
+        var activeStarCount:Int = Std.int(stars.length * OuterPerformance.getParticleMultiplier());
+        if (activeStarCount < 12) activeStarCount = 12;
+
         for (i in 0...stars.length)
         {
             var star:FlxSprite = stars[i];
 
             if (star == null)
                 continue;
+
+            star.visible = i < activeStarCount;
+            if (!star.visible) continue;
 
             star.y += (5 + (i % 3) * 2) * elapsed;
 
