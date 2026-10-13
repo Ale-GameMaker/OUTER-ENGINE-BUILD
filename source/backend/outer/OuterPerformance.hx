@@ -111,7 +111,7 @@ class OuterPerformance
 
     public static function recordFrame(elapsedSeconds:Float):Void
     {
-        if (elapsedSeconds <= 0 || Math.isNaN(elapsedSeconds) || !Math.isFinite(elapsedSeconds)) return;
+        if (elapsedSeconds <= 0 || Math.isNaN(elapsedSeconds) || elapsedSeconds > 1000000) return;
         frameTimeMs = elapsedSeconds * 1000.0;
         estimatedFPS = 1.0 / elapsedSeconds;
         if (frameTimeMs > worstFrameTimeMs) worstFrameTimeMs = frameTimeMs;
