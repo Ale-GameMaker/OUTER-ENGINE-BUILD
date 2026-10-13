@@ -1,7 +1,6 @@
 package backend.outer;
 
 import flixel.text.FlxText;
-import flixel.util.FlxColor;
 
 /** Shared OUTER!ENGINE cosmic palette. Keep state-specific colors here. */
 class OuterTheme
@@ -19,8 +18,8 @@ class OuterTheme
     public static function applyHudText(text:FlxText):Void
     {
         if (text == null) return;
-        text.color = FlxColor.fromInt(TEXT);
-        text.borderColor = FlxColor.fromInt(PURPLE);
+        text.color = TEXT;
+        text.borderColor = PURPLE;
         text.borderSize = 1.5;
     }
 }
