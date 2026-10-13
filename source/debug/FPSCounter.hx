@@ -1,6 +1,7 @@
 package debug;
 
 import flixel.FlxG;
+import backend.outer.OuterPerformance;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
 import openfl.system.System;
@@ -46,6 +47,7 @@ class FPSCounter extends TextField
 	// Event Handlers
 	private override function __enterFrame(deltaTime:Float):Void
 	{
+		OuterPerformance.recordFrame(deltaTime / 1000.0);
 		final now:Float = haxe.Timer.stamp() * 1000;
 		times.push(now);
 		while (times[0] < now - 1000) times.shift();
@@ -61,7 +63,11 @@ class FPSCounter extends TextField
 	}
 
 	public dynamic function updateText():Void { // so people can override it in hscript
-		text = 'FPS: ${currentFPS}'
+		text = 'FPS: ${currentFPS} / ${OuterPerformance.targetFPS}'
+		+ '\nFrame: ${Math.round(OuterPerformance.frameTimeMs * 100) / 100} ms'
+		+ '\nAvg: ${Math.round(OuterPerformance.averageFrameTimeMs * 100) / 100} ms | Worst: ${Math.round(OuterPerformance.worstFrameTimeMs * 100) / 100} ms'
+		+ '\nHitches: ${OuterPerformance.hitchCount} | Drops: ${OuterPerformance.droppedFrameCount}'
+		+ '\nQuality: ${OuterPerformance.qualityProfile} / T${OuterPerformance.qualityTier}'
 		+ '\nMemory: ${flixel.util.FlxStringUtil.formatBytes(memoryMegas)}';
 
 		textColor = 0xFFFFFFFF;
