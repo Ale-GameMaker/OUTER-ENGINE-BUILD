@@ -1,0 +1,45 @@
+{
+  "songs": [
+    [
+      "Senpai",
+      "senpai",
+      [
+        146,
+        113,
+        253
+      ]
+    ],
+    [
+      "Roses",
+      "senpai",
+      [
+        146,
+        113,
+        253
+      ]
+    ],
+    [
+      "Thorns",
+      "senpai",
+      [
+        146,
+        113,
+        253
+      ]
+    ]
+  ],
+  "weekCharacters": [
+    "senpai",
+    "bf",
+    "gf"
+  ],
+  "weekBackground": "school",
+  "storyName": "HATING SIMULATOR",
+  "weekBefore": "week5",
+  "weekName": "Week 6",
+  "startUnlocked": false,
+  "hiddenUntilUnlocked": false,
+  "hideStoryMode": false,
+  "hideFreeplay": false,
+  "difficulties": ""
+}
