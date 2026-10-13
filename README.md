@@ -6,7 +6,8 @@
 </p>
 
 <p align="center">
-  <img src="docs/img/PsychEngineLogoTweak.png" alt="OUTER!ENGINE" width="420">
+  <strong>✦ OUTER!ENGINE ✦</strong><br>
+  <em>Explore beyond the familiar.</em>
 </p>
 
 > **Project status:** work in progress. OUTER!ENGINE is based on Psych Engine code, with its own direction, tools, and cosmic identity. Some systems are experimental and may need build validation.
