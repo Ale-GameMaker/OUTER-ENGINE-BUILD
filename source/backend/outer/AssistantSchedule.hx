@@ -1,6 +1,7 @@
 package backend.outer;
 
 import flixel.FlxG;
+import haxe.Json;
 
 /**
  * Persistent per-assistant schedule.
@@ -60,6 +61,9 @@ class AssistantSchedule
         {
             trace("OUTER!ENGINE schedule: could not load saved configuration: " + e);
         }
+
+        var hasSharedFile:Bool = loadSharedFile();
+        if (!hasSharedFile) writeSharedFile();
     }
 
     static function makeEntry(enabled:Bool, hour:Int, minute:Int, duration:Int, days:Array<Int>, preset:String):Dynamic
@@ -298,22 +302,74 @@ class AssistantSchedule
         cachedMinuteKey = -1;
         try
         {
-            if (FlxG.save == null) return;
-            var stored:Dynamic = {};
-            for (id in ["OuterQT", "OuterSky", "OuterNikku", "OuterCarol"])
-                Reflect.setField(stored, id, entries.get(id));
-            FlxG.save.data.outerAssistantSchedule = {
-                timezoneOffset: timezoneOffset,
-                globallyEnabled: globallyEnabled,
-                executionMode: executionMode,
-                entries: stored
-            };
-            FlxG.save.flush();
+            if (FlxG.save != null)
+            {
+                FlxG.save.data.outerAssistantSchedule = serializeConfig();
+                FlxG.save.flush();
+            }
         }
         catch (e:Dynamic)
         {
-            trace("OUTER!ENGINE schedule: could not save configuration: " + e);
+            trace("OUTER!ENGINE schedule: could not save engine preferences: " + e);
         }
+        writeSharedFile();
+    }
+
+    static function serializeConfig():Dynamic
+    {
+        var stored:Dynamic = {};
+        for (id in ["OuterQT", "OuterSky", "OuterNikku", "OuterCarol"])
+            Reflect.setField(stored, id, entries.get(id));
+        return {
+            timezoneOffset: timezoneOffset,
+            globallyEnabled: globallyEnabled,
+            executionMode: executionMode,
+            entries: stored
+        };
+    }
+
+    static function loadSharedFile():Bool
+    {
+        #if sys
+        var path:String = "outer_assistant_schedule.json";
+        try
+        {
+            if (!sys.FileSystem.exists(path)) return false;
+            var saved:Dynamic = Json.parse(sys.io.File.getContent(path));
+            if (Reflect.hasField(saved, "timezoneOffset")) timezoneOffset = clamp(Std.int(saved.timezoneOffset), -12, 14);
+            if (Reflect.hasField(saved, "globallyEnabled")) globallyEnabled = saved.globallyEnabled == true;
+            if (Reflect.hasField(saved, "executionMode")) executionMode = normalizeMode(Std.string(saved.executionMode));
+            if (Reflect.hasField(saved, "entries"))
+            {
+                var savedEntries:Dynamic = saved.entries;
+                for (id in ["OuterQT", "OuterSky", "OuterNikku", "OuterCarol"])
+                {
+                    var value:Dynamic = Reflect.field(savedEntries, id);
+                    if (value != null) entries.set(id, sanitizeEntry(value, id));
+                }
+            }
+            return true;
+        }
+        catch (e:Dynamic)
+        {
+            trace("OUTER!ENGINE schedule: shared JSON load failed: " + e);
+        }
+        #end
+        return false;
+    }
+
+    static function writeSharedFile():Void
+    {
+        #if sys
+        try
+        {
+            sys.io.File.saveContent("outer_assistant_schedule.json", Json.stringify(serializeConfig(), null, "  "));
+        }
+        catch (e:Dynamic)
+        {
+            trace("OUTER!ENGINE schedule: could not export shared JSON: " + e);
+        }
+        #end
     }
 
     public static function getStatusSummary(id:String):String
