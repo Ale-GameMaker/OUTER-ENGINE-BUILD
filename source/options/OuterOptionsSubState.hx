@@ -3,6 +3,7 @@ package options;
 import backend.Paths;
 import backend.AssistantManager;
 import backend.outer.AssistantSchedule;
+import backend.outer.OuterPerformance;
 import backend.outer.OuterAI;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -26,7 +27,10 @@ class OuterOptionsSubState extends MusicBeatSubstate
         "Target Start Hour",
         "Target Duration",
         "Apply Schedule Preset",
-        "Target Active Days"
+        "Target Active Days",
+        "FPS Target",
+        "Graphics Quality Profile",
+        "Adaptive Quality Controller"
     ];
 
     var curSelected:Int = 0;
@@ -151,6 +155,16 @@ class OuterOptionsSubState extends MusicBeatSubstate
             case 13:
                 descText.text = target + " active days: " + describeDays(cast entry.days) +
                     "\nLeft/Right cycles all days, weekdays, and weekends.";
+            case 14:
+                descText.text = "Frame cap: " + OuterPerformance.targetFPS + " FPS" +
+                    "\nLeft/Right selects a cap from 30 to 360 FPS. The monitor tracks frame time, spikes and missed-frame estimates." +
+                    "\nCurrent: " + Math.round(OuterPerformance.frameTimeMs * 100) / 100 + " ms, average " + Math.round(OuterPerformance.averageFrameTimeMs * 100) / 100 + " ms.";
+            case 15:
+                descText.text = "Graphics profile: " + OuterPerformance.qualityProfile.toUpperCase() +
+                    "\nLOW reduces optional effects, BALANCED is the default, HIGH favors visuals, ADAPTIVE adjusts the quality tier based on frame pacing.";
+            case 16:
+                descText.text = "Adaptive quality controller: " + (OuterPerformance.adaptiveQuality ? "ENABLED" : "DISABLED") +
+                    "\nWhen using the ADAPTIVE profile, sustained slow frame pacing lowers the quality tier; stable performance gradually restores it.";
         }
     }
 
@@ -251,6 +265,23 @@ class OuterOptionsSubState extends MusicBeatSubstate
                 };
                 AssistantSchedule.setDays(scheduleTargets[scheduleTargetIndex], days);
                 AssistantManager.refreshSchedule();
+
+            case 14:
+                var fpsOptions:Array<Int> = [30, 45, 60, 75, 90, 120, 144, 165, 240, 300, 360];
+                var fpsIndex:Int = fpsOptions.indexOf(OuterPerformance.targetFPS);
+                if (fpsIndex < 0) fpsIndex = 2;
+                fpsIndex = (fpsIndex + direction + fpsOptions.length) % fpsOptions.length;
+                OuterPerformance.setTargetFPS(fpsOptions[fpsIndex]);
+
+            case 15:
+                var profiles:Array<String> = ["low", "balanced", "high", "adaptive"];
+                var profileIndex:Int = profiles.indexOf(OuterPerformance.qualityProfile);
+                if (profileIndex < 0) profileIndex = 1;
+                profileIndex = (profileIndex + direction + profiles.length) % profiles.length;
+                OuterPerformance.setQualityProfile(profiles[profileIndex]);
+
+            case 16:
+                OuterPerformance.setAdaptiveQuality(!OuterPerformance.adaptiveQuality);
         }
     }
 
