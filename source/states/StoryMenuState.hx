@@ -126,6 +126,16 @@ class StoryMenuState extends MusicBeatState
 			}
 		}
 
+		if (loadedWeeks.length == 0)
+		{
+			FlxTransitionableState.skipNextTransIn = true;
+			persistentUpdate = false;
+			MusicBeatState.switchState(new states.ErrorState('NO VISIBLE WEEKS FOUND FOR STORY MODE\\n\\nCheck week JSON visibility and unlock settings.',
+				function() MusicBeatState.switchState(new states.editors.WeekEditorState()),
+				function() MusicBeatState.switchState(new states.MainMenuState())));
+			return;
+		}
+
 		WeekData.setDirectoryFromWeek(loadedWeeks[0]);
 		var charArray:Array<String> = loadedWeeks[0].weekCharacters;
 		for (char in 0...3)
