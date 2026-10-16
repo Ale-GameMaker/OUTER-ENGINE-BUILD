@@ -79,6 +79,12 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 		option.onChange = playNoteSplashes;
 
+		var option:Option = new Option('Freaky Mode',
+			'Enables alternate character sprites when matching freaky assets are installed.',
+			'freakyMode',
+			BOOL);
+		addOption(option);
+
 		var option:Option = new Option('Hide HUD',
 			'If checked, hides most HUD elements.',
 			'hideHud',
