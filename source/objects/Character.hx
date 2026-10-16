@@ -104,6 +104,18 @@ class Character extends FlxSprite
 
 	public function changeCharacter(character:String)
 	{
+		// Freaky Mode uses an optional alternate GF character definition.
+		// The normal GF remains unchanged if the alternate asset is not installed.
+		if (ClientPrefs.data.freakyMode && character == 'gf')
+		{
+			var freakyCharacterPath:String = Paths.getPath('characters/gf-freaky.json', TEXT);
+			#if MODS_ALLOWED
+			if (FileSystem.exists(freakyCharacterPath)) character = 'gf-freaky';
+			#else
+			if (Assets.exists(freakyCharacterPath)) character = 'gf-freaky';
+			#end
+		}
+
 		animationsArray = [];
 		animOffsets = [];
 		curCharacter = character;
