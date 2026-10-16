@@ -10,6 +10,7 @@ import openfl.utils.Assets;
 import haxe.Json;
 
 import backend.Song;
+import backend.ClientPrefs;
 import states.stages.objects.TankmenBG;
 
 typedef CharacterFile = {
