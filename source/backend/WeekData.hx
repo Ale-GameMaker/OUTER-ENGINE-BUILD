@@ -101,7 +101,7 @@ class WeekData {
 						}
 						#end
 
-						if(weekFile != null && (isStoryMode == null || (isStoryMode && !weekFile.hideStoryMode) || (!isStoryMode && !weekFile.hideFreeplay))) {
+						if(weekFile != null && isWeekVisible(weekFile, isStoryMode)) {
 							weeksLoaded.set(sexList[i], weekFile);
 							weeksList.push(sexList[i]);
 						}
@@ -120,7 +120,7 @@ class WeekData {
 					var path:String = directory + daWeek + '.json';
 					if(FileSystem.exists(path))
 					{
-						addWeek(daWeek, path, directories[i], i, originalLength);
+						addWeek(daWeek, path, directories[i], i, originalLength, isStoryMode);
 					}
 				}
 
@@ -137,7 +137,7 @@ class WeekData {
 		#end
 	}
 
-	private static function addWeek(weekToCheck:String, path:String, directory:String, i:Int, originalLength:Int)
+	private static function addWeek(weekToCheck:String, path:String, directory:String, i:Int, originalLength:Int, isStoryMode:Null<Bool>)
 	{
 		if(!weeksLoaded.exists(weekToCheck))
 		{
@@ -151,13 +151,20 @@ class WeekData {
 					weekFile.folder = directory.substring(Paths.mods().length, directory.length-1);
 					#end
 				}
-				if((PlayState.isStoryMode && !weekFile.hideStoryMode) || (!PlayState.isStoryMode && !weekFile.hideFreeplay))
+				if(isWeekVisible(weekFile, isStoryMode))
 				{
 					weeksLoaded.set(weekToCheck, weekFile);
 					weeksList.push(weekToCheck);
 				}
 			}
 		}
+	}
+
+	private static function isWeekVisible(weekFile:WeekData, isStoryMode:Null<Bool>):Bool
+	{
+		if (weekFile == null) return false;
+		if (isStoryMode == null) return !weekFile.hideStoryMode || !weekFile.hideFreeplay;
+		return isStoryMode ? !weekFile.hideStoryMode : !weekFile.hideFreeplay;
 	}
 
 	private static function getWeekFile(path:String):WeekFile {
