@@ -111,6 +111,16 @@ class FreeplayState extends MusicBeatState
 		}
 		Mods.loadTopMod();
 
+		if (songs.length == 0)
+		{
+			FlxTransitionableState.skipNextTransIn = true;
+			persistentUpdate = false;
+			MusicBeatState.switchState(new states.ErrorState('NO SONGS FOUND FOR FREEPLAY\\n\\nCheck that week JSON files list songs and that their charts exist.',
+				function() MusicBeatState.switchState(new states.editors.WeekEditorState()),
+				function() MusicBeatState.switchState(new states.MainMenuState())));
+			return;
+		}
+
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.antialiasing = ClientPrefs.data.antialiasing;
 		bg.color = 0xFF6A0DAD; // OUTER!ENGINE purple theme.
