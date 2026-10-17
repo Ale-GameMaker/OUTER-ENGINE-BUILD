@@ -105,10 +105,17 @@ class Character extends FlxSprite
 
 	public function changeCharacter(character:String)
 	{
-		// Female Mode replaces the default BF only when this character is the player.
-		// Custom characters from mods remain untouched.
+		// Female Mode only targets the default player BF ID. Other character IDs remain untouched.
+		// If the optional female character asset is absent, keep the normal BF instead.
 		if (ClientPrefs.data.femaleMode && isPlayer && character == 'bf')
-			character = 'bfgenderbend';
+		{
+			var femaleCharacterPath:String = Paths.getPath('characters/bfgenderbend.json', TEXT);
+			#if MODS_ALLOWED
+			if (FileSystem.exists(femaleCharacterPath)) character = 'bfgenderbend';
+			#else
+			if (Assets.exists(femaleCharacterPath)) character = 'bfgenderbend';
+			#end
+		}
 
 		// Freaky Mode uses an optional alternate GF character definition.
 		// The normal GF remains unchanged if the alternate asset is not installed.
