@@ -79,8 +79,14 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 		option.onChange = playNoteSplashes;
 
+		var option:Option = new Option('Female Mode',
+			'Replaces the default player Boyfriend with bfgenderbend when that character asset is installed.',
+			'femaleMode',
+			BOOL);
+		addOption(option);
+
 		var option:Option = new Option('Freaky Mode',
-			'Enables alternate character sprites when matching freaky assets are installed.',
+			'Enables the alternate GF character when the gf-freaky character asset is installed.',
 			'freakyMode',
 			BOOL);
 		addOption(option);
