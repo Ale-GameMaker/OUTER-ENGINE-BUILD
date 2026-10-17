@@ -24,6 +24,7 @@ import openfl.geom.Rectangle;
 import states.StoryMenuState;
 import states.FreeplayState;
 import states.CreditsState;
+import states.editors.ChartingState;
 import states.AchievementsMenuState;
 import options.OptionsState;
 import objects.outer.OuterDialogueBubble;
@@ -39,7 +40,8 @@ class MainMenuState extends MusicBeatState
     private var optionShit:Array<String> = [
         'story mode',
         'freeplay',
-        'credits'
+        'credits',
+        'chart editor'
     ];
 
     private var selectedSomethin:Bool = false;
@@ -422,7 +424,7 @@ class MainMenuState extends MusicBeatState
         item.updateHitbox();
 
         // Guarda o texto da opção como fallback visual.
-        item.visible = false;
+        item.visible = true;
 
         var fallback:FlxSprite = new FlxSprite(text.x, text.y);
         fallback.makeGraphic(
@@ -633,6 +635,10 @@ class MainMenuState extends MusicBeatState
 
             case 'credits':
                 FlxG.switchState(new CreditsState());
+
+            case 'chart editor':
+                PlayState.chartingMode = true;
+                FlxG.switchState(new ChartingState());
         }
     }
 
