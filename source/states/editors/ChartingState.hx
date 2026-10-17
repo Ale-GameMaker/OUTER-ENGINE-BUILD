@@ -27,6 +27,9 @@ import backend.Song;
 import backend.StageData;
 import backend.Highscore;
 import backend.Difficulty;
+import backend.outer.OuterAI;
+import backend.outer.OuterAssistant;
+import substates.OuterAIChatSubState;
 
 import objects.Character;
 import objects.HealthIcon;
@@ -402,7 +405,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		if(chartEditorSave.data.infoBoxPosition != null && chartEditorSave.data.infoBoxPosition.length > 1)
 			infoBox.setPosition(chartEditorSave.data.infoBoxPosition[0], chartEditorSave.data.infoBoxPosition[1]);
 
-		upperBox = new PsychUIBox(40, 40, 330, 300, ['File', 'Edit', 'View']);
+		upperBox = new PsychUIBox(40, 40, 330, 330, ['File', 'Edit', 'View', 'Chat']);
 		upperBox.scrollFactor.set();
 		upperBox.isMinimized = true;
 		upperBox.minimizeOnFocusLost = true;
@@ -439,6 +442,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		addFileTab();
 		addEditTab();
 		addViewTab();
+		addChatTab();
 		//
 
 		loadMusic();
@@ -4034,6 +4038,48 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		}, btnWid);
 		btn.text.alignment = LEFT;
 		tab_group.add(btn);
+	}
+
+
+	function addChatTab():Void
+	{
+		var tab = upperBox.getTab('Chat');
+		var tab_group = tab.menu;
+		var btnX = tab.x - upperBox.x;
+		var btnY = 1;
+		var btnWid = Std.int(tab.width);
+
+		var statusText = new FlxText(btnX + 6, btnY, btnWid - 12, '', 12);
+		statusText.text = OuterAI.enabled ? 'Ollama integration: ENABLED' : 'Ollama integration: DISABLED';
+		statusText.color = OuterAI.enabled ? FlxColor.LIME : FlxColor.ORANGE;
+		tab_group.add(statusText);
+
+		btnY += 24;
+		var assistants:Array<OuterAssistant> = [
+			OuterAssistant.minusBright(),
+			OuterAssistant.qt(),
+			OuterAssistant.sky(),
+			OuterAssistant.skyBlue(),
+			OuterAssistant.nikku(),
+			OuterAssistant.carol()
+		];
+
+		for (assistant in assistants)
+		{
+			var current:OuterAssistant = assistant;
+			var button:PsychUIButton = new PsychUIButton(btnX, btnY, '  ' + current.displayName, function()
+			{
+				openSubState(new OuterAIChatSubState(current.id));
+			}, btnWid);
+			button.text.alignment = LEFT;
+			tab_group.add(button);
+
+			btnY += 22;
+		}
+
+		var hint = new FlxText(btnX + 6, btnY + 2, btnWid - 12, 'Select an assistant to open chat.', 10);
+		hint.color = FlxColor.GRAY;
+		tab_group.add(hint);
 	}
 
 	var lockedEvents:Bool = false;
