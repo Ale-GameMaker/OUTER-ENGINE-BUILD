@@ -6,21 +6,23 @@ import backend.outer.OuterAssistant;
 import flixel.FlxG;
 import flixel.FlxSubState;
 import flixel.FlxSprite;
-import flixel.addons.ui.FlxInputText;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import openfl.events.KeyboardEvent;
+import openfl.ui.Keyboard;
 
 class OuterAIChatSubState extends FlxSubState
 {
 	private var assistant:OuterAssistant;
 	private var transcript:FlxText;
-	private var inputField:FlxInputText;
+	private var inputField:FlxText;
 	private var statusText:FlxText;
 	private var enableButton:FlxText;
 	private var sendButton:FlxText;
 	private var closeButton:FlxText;
 	private var conversation:Array<String> = [];
 	private var waiting:Bool = false;
+	private var inputActive:Bool = true;
 
 	public function new(assistantId:String = "minusbright")
 	{
@@ -63,15 +65,47 @@ class OuterAIChatSubState extends FlxSubState
 		transcript.text = "You are chatting with " + assistant.displayName + ".\nMessages are sent to your configured local Ollama endpoint.\n";
 		add(transcript);
 
-		inputField = new FlxInputText(panel.x + 24, panel.y + panel.height - 68, panel.width - 145, "", 16, FlxColor.WHITE, 0xFF29243B, true, true, true, true);
+		inputField = new FlxText(panel.x + 24, panel.y + panel.height - 68, panel.width - 145, "> ", 16);
+		inputField.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT);
+		inputField.background = true;
+		inputField.backgroundColor = 0xFF29243B;
+		inputField.borderStyle = OUTLINE;
+		inputField.borderColor = 0xFF62558A;
+		inputField.borderSize = 1;
 		inputField.scrollFactor.set();
 		add(inputField);
 
 		sendButton = makeLabel(panel.x + panel.width - 108, panel.y + panel.height - 66, 80, "[ SEND ]", 16, FlxColor.LIME);
 		add(sendButton);
 
-		var hint:FlxText = makeLabel(panel.x + 24, panel.y + panel.height - 28, panel.width - 48, "ENTER sends  |  ESC closes  |  Local model: " + OuterAI.model, 11, FlxColor.GRAY);
+		var hint:FlxText = makeLabel(panel.x + 24, panel.y + panel.height - 28, panel.width - 48, "TYPE TO CHAT  |  ENTER sends  |  BACKSPACE deletes  |  ESC closes  |  Model: " + OuterAI.model, 11, FlxColor.GRAY);
 		add(hint);
+
+		if (FlxG.stage != null)
+			FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+	}
+
+	private function onKeyDown(event:KeyboardEvent):Void
+	{
+		if (!inputActive || inputField == null) return;
+
+		if (event.keyCode == Keyboard.BACKSPACE)
+		{
+			if (inputField.text.length > 2)
+				inputField.text = inputField.text.substr(0, inputField.text.length - 1);
+			event.stopPropagation();
+			return;
+		}
+
+		if (event.keyCode == Keyboard.ENTER || event.keyCode == Keyboard.ESCAPE)
+			return;
+
+		var charCode:Int = event.charCode;
+		if (charCode >= 32 && charCode != 127 && inputField.text.length < 1002)
+		{
+			inputField.text += String.fromCharCode(charCode);
+			event.stopPropagation();
+		}
 	}
 
 	private function makeLabel(x:Float, y:Float, width:Float, text:String, size:Int, color:FlxColor):FlxText
@@ -98,10 +132,10 @@ class OuterAIChatSubState extends FlxSubState
 	private function sendMessage():Void
 	{
 		if (waiting || inputField == null) return;
-		var message:String = StringTools.trim(inputField.text);
+		var message:String = StringTools.trim(inputField.text.substr(2));
 		if (message.length == 0) return;
 
-		inputField.text = "";
+		inputField.text = "> ";
 		conversation.push("YOU: " + message);
 		transcript.text += "\nYOU: " + message + "\n" + assistant.displayName + ": thinking...\n";
 		waiting = true;
@@ -146,6 +180,15 @@ class OuterAIChatSubState extends FlxSubState
 				updateEnableButton();
 				updateStatus();
 			}
+			if (inputField != null && FlxG.mouse.overlaps(inputField))
+				inputActive = true;
 		}
+	}
+
+	override public function destroy():Void
+	{
+		if (FlxG.stage != null)
+			FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+		super.destroy();
 	}
 }
