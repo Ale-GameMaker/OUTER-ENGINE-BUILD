@@ -24,6 +24,7 @@ import states.TitleState;
 	public var framerate:Int = 60;
 	public var camZooms:Bool = true;
 	public var hideHud:Bool = false;
+	// OUTER-ENGINE character appearance toggles. SaveVariables fields are saved automatically.
 	public var freakyMode:Bool = false;
 	public var femaleMode:Bool = false;
 	public var noteOffset:Int = 0;
