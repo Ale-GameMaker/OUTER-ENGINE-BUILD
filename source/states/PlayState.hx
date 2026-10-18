@@ -1536,82 +1536,101 @@ class PlayState extends MusicBeatState
 	public var skipArrowStartTween:Bool = false; //for lua
 	private function generateStaticArrows(player:Int):Void
 	{
-		var strumLineX:Float = ClientPrefs.data.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X;
-		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
+		var strumLineX:Float = ClientPrefs.data.middleScroll
+			? STRUM_X_MIDDLESCROLL
+			: STRUM_X;
+
+		var strumLineY:Float = ClientPrefs.data.downScroll
+			? FlxG.height - 150
+			: 50;
+
 		for (i in 0...4)
 		{
 			var targetAlpha:Float = 1;
+
 			if (player < 1)
 			{
-				if(!ClientPrefs.data.opponentStrums) targetAlpha = 0;
-				else if(ClientPrefs.data.middleScroll) targetAlpha = 0.35;
+				if (!ClientPrefs.data.opponentStrums)
+					targetAlpha = 0;
+				else if (ClientPrefs.data.middleScroll)
+					targetAlpha = 0.35;
 			}
 
-			var babyArrow:StrumNote = new StrumNote(strumLineX, strumLineY, i, player);
+			var babyArrow:StrumNote = new StrumNote(
+				strumLineX,
+				strumLineY,
+				i,
+				player
+			);
+
 			babyArrow.downScroll = ClientPrefs.data.downScroll;
 
 			if (player == 1)
+			{
 				playerStrums.add(babyArrow);
+			}
 			else
 			{
-				if(ClientPrefs.data.middleScroll)
+				if (ClientPrefs.data.middleScroll)
 				{
 					babyArrow.x += 310;
-					if(i > 1) { //Up and Right
+
+					if (i > 1)
 						babyArrow.x += FlxG.width / 2 + 25;
-					}
 				}
+
 				opponentStrums.add(babyArrow);
 			}
 
 			strumLineNotes.add(babyArrow);
 			babyArrow.playerPosition();
 
-			// Keep the real destination for Lua/HScript default strum coordinates.
-			// Do not add dynamic fields to StrumNote: that crashes on the C++ target.
+			// Salva as coordenadas finais reais.
+			// Mantém compatibilidade com o sistema de scripts do OUTER.
 			var finalX:Float = babyArrow.x;
 			var finalY:Float = babyArrow.y;
+
 			outerFinalStrumX.set(babyArrow, finalX);
 			outerFinalStrumY.set(babyArrow, finalY);
 
 			if (!isStoryMode && !skipArrowStartTween)
 			{
-				// Receptors first converge to a temporary Middlescroll layout,
-				// then spread horizontally to their configured final positions.
-				var middleX:Float = finalX;
-				if (!ClientPrefs.data.middleScroll)
-				{
-					middleX += STRUM_X_MIDDLESCROLL - STRUM_X;
-					if (player < 1)
-					{
-						middleX += 310;
-						if (i > 1) middleX += FlxG.width / 2 + 25;
-					}
-				}
+				// Os receptores começam juntos no centro da tela.
+				// A animação altera somente a posição horizontal.
+				var receptorWidth:Float = babyArrow.width;
+				var laneWidth:Float = receptorWidth * 4;
+				var centerStartX:Float = (FlxG.width - laneWidth) / 2;
 
-				// Upscroll enters from above; downscroll enters from below.
-				babyArrow.x = middleX;
-				babyArrow.y = ClientPrefs.data.downScroll
-					? FlxG.height + babyArrow.height + 20
-					: -babyArrow.height - 20;
+				babyArrow.x = centerStartX + receptorWidth * i;
+				babyArrow.y = finalY;
 				babyArrow.alpha = 0;
 
-				var stagger:Float = 0.12 * i;
-				FlxTween.tween(babyArrow, {y: finalY}, 0.55, {
-					ease: FlxEase.circOut,
-					startDelay: 0.15 + stagger
-				});
-				FlxTween.tween(babyArrow, {x: finalX}, 0.45, {
-					ease: FlxEase.backOut,
-					startDelay: 0.85 + stagger
-				});
-				FlxTween.tween(babyArrow, {alpha: targetAlpha}, 0.35, {
-					ease: FlxEase.circOut,
-					startDelay: 0.25 + stagger
-				});
+				var stagger:Float = 0.06 * i;
+
+				FlxTween.tween(
+					babyArrow,
+					{x: finalX},
+					0.65,
+					{
+						ease: FlxEase.circOut,
+						startDelay: 0.15 + stagger
+					}
+				);
+
+				FlxTween.tween(
+					babyArrow,
+					{alpha: targetAlpha},
+					0.35,
+					{
+						ease: FlxEase.circOut,
+						startDelay: 0.15 + stagger
+					}
+				);
 			}
 			else
+			{
 				babyArrow.alpha = targetAlpha;
+			}
 		}
 	}
 
@@ -2493,6 +2512,41 @@ class PlayState extends MusicBeatState
 			{
 				openChartEditor();
 				return false;
+			}
+
+			// A tela de resultados entra somente no Freeplay.
+			// O modo história continua usando o fluxo original.
+			if (!isStoryMode)
+			{
+				var resultAccuracy:Float = ratingPercent;
+
+				if (Math.isNaN(resultAccuracy))
+					resultAccuracy = 0;
+
+				ResultsState.lastSong = Song.loadedSongName;
+				ResultsState.lastScore = songScore;
+				ResultsState.lastMisses = songMisses;
+				ResultsState.lastAccuracy = resultAccuracy;
+				ResultsState.lastCombo = combo;
+				ResultsState.lastRank = ResultsState.calculateRank(
+					resultAccuracy,
+					songMisses
+				);
+
+				Mods.loadTopMod();
+
+				#if DISCORD_ALLOWED
+				DiscordClient.resetClientID();
+				#end
+
+				canResync = false;
+				changedDifficulty = false;
+				transitioning = true;
+
+				MusicBeatState.switchState(new ResultsState());
+				FlxG.sound.playMusic(Paths.music("freakyMenu"));
+
+				return true;
 			}
 
 			if (isStoryMode)
@@ -3691,3 +3745,5 @@ class PlayState extends MusicBeatState
 		return false;
 	}
 }
+
+			
