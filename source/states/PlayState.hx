@@ -5,6 +5,8 @@ import backend.StageData;
 import backend.WeekData;
 import backend.Song;
 import backend.Rating;
+import backend.ClientPrefs;
+import backend.Paths;
 
 import flixel.FlxBasic;
 import flixel.FlxObject;
@@ -167,6 +169,10 @@ class PlayState extends MusicBeatState
 	public var playerStrums:FlxTypedGroup<StrumNote> = new FlxTypedGroup<StrumNote>();
 	public var grpNoteSplashes:FlxTypedGroup<NoteSplash> = new FlxTypedGroup<NoteSplash>();
 
+	// Store OUTER receptor destinations outside StrumNote to avoid dynamic-field crashes on C++.
+	private var outerFinalStrumX:haxe.ds.ObjectMap<StrumNote, Float> = new haxe.ds.ObjectMap<StrumNote, Float>();
+	private var outerFinalStrumY:haxe.ds.ObjectMap<StrumNote, Float> = new haxe.ds.ObjectMap<StrumNote, Float>();
+
 	public var camZooming:Bool = false;
 	public var camZoomingMult:Float = 1;
 	public var camZoomingDecay:Float = 1;
@@ -177,6 +183,8 @@ class PlayState extends MusicBeatState
 	public var combo:Int = 0;
 
 	public var healthBar:Bar;
+	// OUTER!ENGINE custom health HUD (ported from Baddies Reloaded).
+	private var reloadedHealthHud:ReloadedHealthBar;
 	public var timeBar:Bar;
 	var songPercent:Float = 0;
 
@@ -566,6 +574,9 @@ class PlayState extends MusicBeatState
 		uiGroup.cameras = [camHUD];
 		noteGroup.cameras = [camHUD];
 		comboGroup.cameras = [camHUD];
+
+		// Replace Psych's health bar with the OUTER!ENGINE Reloaded HUD.
+		reloadedHealthHud = new ReloadedHealthBar(this);
 
 		startingSong = true;
 
@@ -970,12 +981,18 @@ class PlayState extends MusicBeatState
 			generateStaticArrows(0);
 			generateStaticArrows(1);
 			for (i in 0...playerStrums.length) {
-				setOnScripts('defaultPlayerStrumX' + i, playerStrums.members[i].x);
-				setOnScripts('defaultPlayerStrumY' + i, playerStrums.members[i].y);
+				var strum:StrumNote = playerStrums.members[i];
+				var finalX:Float = outerFinalStrumX.exists(strum) ? outerFinalStrumX.get(strum) : strum.x;
+				var finalY:Float = outerFinalStrumY.exists(strum) ? outerFinalStrumY.get(strum) : strum.y;
+				setOnScripts('defaultPlayerStrumX' + i, finalX);
+				setOnScripts('defaultPlayerStrumY' + i, finalY);
 			}
 			for (i in 0...opponentStrums.length) {
-				setOnScripts('defaultOpponentStrumX' + i, opponentStrums.members[i].x);
-				setOnScripts('defaultOpponentStrumY' + i, opponentStrums.members[i].y);
+				var strum:StrumNote = opponentStrums.members[i];
+				var finalX:Float = outerFinalStrumX.exists(strum) ? outerFinalStrumX.get(strum) : strum.x;
+				var finalY:Float = outerFinalStrumY.exists(strum) ? outerFinalStrumY.get(strum) : strum.y;
+				setOnScripts('defaultOpponentStrumX' + i, finalX);
+				setOnScripts('defaultOpponentStrumY' + i, finalY);
 				//if(ClientPrefs.data.middleScroll) opponentStrums.members[i].visible = false;
 			}
 
@@ -1530,7 +1547,6 @@ class PlayState extends MusicBeatState
 		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
 		for (i in 0...4)
 		{
-			// FlxG.log.add(i);
 			var targetAlpha:Float = 1;
 			if (player < 1)
 			{
@@ -1540,13 +1556,6 @@ class PlayState extends MusicBeatState
 
 			var babyArrow:StrumNote = new StrumNote(strumLineX, strumLineY, i, player);
 			babyArrow.downScroll = ClientPrefs.data.downScroll;
-			if (!isStoryMode && !skipArrowStartTween)
-			{
-				//babyArrow.y -= 10;
-				babyArrow.alpha = 0;
-				FlxTween.tween(babyArrow, {/*y: babyArrow.y + 10,*/ alpha: targetAlpha}, 1, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * i)});
-			}
-			else babyArrow.alpha = targetAlpha;
 
 			if (player == 1)
 				playerStrums.add(babyArrow);
@@ -1564,6 +1573,52 @@ class PlayState extends MusicBeatState
 
 			strumLineNotes.add(babyArrow);
 			babyArrow.playerPosition();
+
+			// Keep the real destination for Lua/HScript default strum coordinates.
+			// Do not add dynamic fields to StrumNote: that crashes on the C++ target.
+			var finalX:Float = babyArrow.x;
+			var finalY:Float = babyArrow.y;
+			outerFinalStrumX.set(babyArrow, finalX);
+			outerFinalStrumY.set(babyArrow, finalY);
+
+			if (!isStoryMode && !skipArrowStartTween)
+			{
+				// Receptors first converge to a temporary Middlescroll layout,
+				// then spread horizontally to their configured final positions.
+				var middleX:Float = finalX;
+				if (!ClientPrefs.data.middleScroll)
+				{
+					middleX += STRUM_X_MIDDLESCROLL - STRUM_X;
+					if (player < 1)
+					{
+						middleX += 310;
+						if (i > 1) middleX += FlxG.width / 2 + 25;
+					}
+				}
+
+				// Upscroll enters from above; downscroll enters from below.
+				babyArrow.x = middleX;
+				babyArrow.y = ClientPrefs.data.downScroll
+					? FlxG.height + babyArrow.height + 20
+					: -babyArrow.height - 20;
+				babyArrow.alpha = 0;
+
+				var stagger:Float = 0.12 * i;
+				FlxTween.tween(babyArrow, {y: finalY}, 0.55, {
+					ease: FlxEase.circOut,
+					startDelay: 0.15 + stagger
+				});
+				FlxTween.tween(babyArrow, {x: finalX}, 0.45, {
+					ease: FlxEase.backOut,
+					startDelay: 0.85 + stagger
+				});
+				FlxTween.tween(babyArrow, {alpha: targetAlpha}, 0.35, {
+					ease: FlxEase.circOut,
+					startDelay: 0.25 + stagger
+				});
+			}
+			else
+				babyArrow.alpha = targetAlpha;
 		}
 	}
 
@@ -1688,6 +1743,9 @@ class PlayState extends MusicBeatState
 		callOnScripts('onUpdate', [elapsed]);
 
 		super.update(elapsed);
+
+		if (reloadedHealthHud != null)
+			reloadedHealthHud.update(elapsed);
 
 		setOnScripts('curDecStep', curDecStep);
 		setOnScripts('curDecBeat', curDecBeat);
@@ -2004,7 +2062,13 @@ class PlayState extends MusicBeatState
 				persistentDraw = false;
 				FlxTimer.globalManager.clear();
 				FlxTween.globalManager.clear();
-				FlxG.camera.setFilters([]);
+				if (reloadedHealthHud != null)
+		{
+			reloadedHealthHud.destroy();
+			reloadedHealthHud = null;
+		}
+
+		FlxG.camera.setFilters([]);
 
 				if(GameOverSubstate.deathDelay > 0)
 				{
@@ -3182,6 +3246,12 @@ class PlayState extends MusicBeatState
 
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
+
+		if (reloadedHealthHud != null)
+		{
+			reloadedHealthHud.destroy();
+			reloadedHealthHud = null;
+		}
 
 		FlxG.camera.setFilters([]);
 
