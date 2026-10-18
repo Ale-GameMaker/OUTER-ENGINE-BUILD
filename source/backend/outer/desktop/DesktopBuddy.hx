@@ -4,7 +4,6 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.math.FlxMath;
 import flixel.util.FlxColor;
-import flixel.graphics.frames.FlxAtlasFrames;
 
 /**
  * OUTER!ENGINE animated assistant buddy.
@@ -49,19 +48,16 @@ class DesktopBuddy extends FlxSprite
 
     static function sanitizeId(id:String):String
     {
-        if (id == null || id.trim() == "") return "minusbright";
+        if (id == null || StringTools.trim(id) == "") return "minusbright";
         return id.toLowerCase().replace("!", "").replace(" ", "").replace("-", "");
     }
 
     function loadBuddyAtlas():Void
     {
         var asset:String = "outer/buddies/" + assistantId;
-        var imagePath:String = Paths.image(asset);
-        var xmlPath:String = Paths.getPath("images/" + asset + ".xml");
-
         try
         {
-            frames = FlxAtlasFrames.fromSparrow(imagePath, xmlPath);
+            frames = Paths.getSparrowAtlas(asset);
             animation.addByPrefix("idle", "idle", 12, true);
             animation.addByPrefix("walk", "walk", 12, true);
             animation.addByPrefix("drag", "drag", 12, true);
